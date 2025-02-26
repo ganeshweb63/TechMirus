@@ -4,7 +4,7 @@
   "description": "Building node.js skills with Software company management app.",
   "main": "src/index.js",
   "scripts": {
-      "start": "node src/index.js",
+    "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },
   "keywords": [
@@ -19,5 +19,8 @@
     "chalk": "^4.1.2",
     "express": "^4.21.2",
     "mongoose": "^8.10.2"
+  },
+  "devDependencies": {
+    "@types/mongoose": "^5.11.96"
   }
 }

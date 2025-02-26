@@ -1,16 +1,26 @@
 const express = require("express");
 const { printLog, LogType, LogColor } = require("./utils/logger");
-
+const { connectToDB } = require("./services/database");
 const app = express();
+const EmployeeRouter = require("./routes/employeeRoutes");
 const port = 8080;
+
+app.use(EmployeeRouter);
 
 app.use("/", (req, res) => {
   res.send("Hello");
 });
 
-app.listen(port, () => {
-  printLog(`Server listening on ${port}`, {
-    color: LogColor.blue,
-    logType: LogType.database,
+connectToDB()
+  .then((val) => {
+    printLog(`Database connected successfully!`, { color: LogColor.green });
+    app.listen(port, () => {
+      printLog(`Server listening on ${port}`, {
+        color: LogColor.yellow,
+        logType: LogType.database,
+      });
+    });
+  })
+  .catch((error) => {
+    printLog(`Database connection error :: ${error}`, { color: LogColor.red });
   });
-});
