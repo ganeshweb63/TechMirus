@@ -1,0 +1,23 @@
+{
+  "name": "techmirus",
+  "version": "1.0.0",
+  "description": "Building node.js skills with Software company management app.",
+  "main": "src/index.js",
+  "scripts": {
+      "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [
+    "nodejs",
+    "javascript",
+    "mongodb"
+  ],
+  "author": "Ganesh Asimshetti",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "chalk": "^4.1.2",
+    "express": "^4.21.2",
+    "mongoose": "^8.10.2"
+  }
+}
