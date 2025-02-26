@@ -2,10 +2,10 @@ const express = require("express");
 const { printLog, LogType, LogColor } = require("./utils/logger");
 const { connectToDB } = require("./services/database");
 const app = express();
-const EmployeeRouter = require("./routes/employeeRoutes");
+const EmployeeRoutes = require("./routes/employeeRoutes");
 const port = 8080;
 
-app.use(EmployeeRouter);
+app.use(EmployeeRoutes);
 
 app.use("/", (req, res) => {
   res.send("Hello");
