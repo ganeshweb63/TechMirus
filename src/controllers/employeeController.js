@@ -1,19 +1,39 @@
+const e = require("express");
 const Employee = require("../models/employee");
-const { printLog } = require("../utils/logger");
-const StatusCode = require('../utils/statusCodes')
+const { printLog, LogType, LogColor } = require("../utils/logger");
+const StatusCode = require("../utils/statusCodes");
+const { sendErrorResponse } = require("../utils/utilities");
 
-function getEmployee(req, res) {
-  res.send("Iam employee");
-}
+const getEmployee = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (email) {
+      const employee = await Employee.findOne({ email: email });
+      console.log(employee);
+
+      if (employee) {
+        await res.send(employee);
+      } else {
+        sendErrorResponse(res, "Employee not found!", {
+          statusCode: StatusCode.notFound,
+        });
+      }
+    } else {
+      throw new Error("Required email parameter not sent!");
+    }
+  } catch (error) {
+    sendErrorResponse(res, error.message, {
+      statusCode: StatusCode.badRequest,
+    });
+  }
+};
 /**
- * 
+ *
  * SignUp user handler
  */
 const createEmployee = async (req, res) => {
-  
-  const {firstName,lastName ,email,password,} = req.body;
+  const { firstName, lastName, email, password } = req.body;
   const employeeId = "Emp00001";
-
 
   try {
     await Employee.create({
@@ -21,12 +41,14 @@ const createEmployee = async (req, res) => {
       lastName,
       email,
       password,
-      employeeId:employeeId
-      })
+      employeeId: employeeId,
+    });
     res.send("Employee created");
   } catch (error) {
-    printLog(`ERROR : employee not created - ${error}`)
-    res.status(StatusCode.badRequest).send(`ERROR : employee not created - ${error}`)
+    printLog(`ERROR : employee not created - ${error}`);
+    res
+      .status(StatusCode.badRequest)
+      .send(`ERROR : employee not created - ${error}`);
   }
 };
 const getAllEmployees = async (req, res) => {
