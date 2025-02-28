@@ -9,8 +9,7 @@ const getEmployee = async (req, res) => {
     const { email } = req.query;
     if (email) {
       const employee = await Employee.findOne({ email: email });
-      console.log(employee);
-
+      printLog(employee);
       if (employee) {
         await res.send(employee);
       } else {
@@ -27,6 +26,7 @@ const getEmployee = async (req, res) => {
     });
   }
 };
+
 /**
  *
  * SignUp user handler
@@ -52,8 +52,14 @@ const createEmployee = async (req, res) => {
   }
 };
 const getAllEmployees = async (req, res) => {
-  const employees = await Employee.find({});
-  res.send(employees);
+  try {
+    const employees = await Employee.find({});
+    res.send(employees);
+  } catch (error) {
+    sendErrorResponse(res, error.message, {
+      statusCode: StatusCode.badRequest,
+    });
+  }
 };
 const updateEmployee = (req, res) => {
   res.send("Employee updated");
