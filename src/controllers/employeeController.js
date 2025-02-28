@@ -33,22 +33,25 @@ const getEmployee = async (req, res) => {
  */
 const createEmployee = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
-  const employeeId = "Emp00001";
+  const employeeId = "Emp00004";
 
   try {
-    await Employee.create({
-      firstName,
-      lastName,
-      email,
-      password,
-      employeeId: employeeId,
-    });
-    res.send("Employee created");
+    if (firstName && email && password) {
+      await Employee.create({
+        firstName,
+        lastName,
+        email,
+        password,
+        employeeId: employeeId,
+      });
+      res.send({ response: "Employee  created successfully" });
+    } else {
+      throw new Error("Required filed are not sent!");
+    }
   } catch (error) {
-    printLog(`ERROR : employee not created - ${error}`);
-    res
-      .status(StatusCode.badRequest)
-      .send(`ERROR : employee not created - ${error}`);
+    sendErrorResponse(res, error.message, {
+      statusCode: StatusCode.badRequest,
+    });
   }
 };
 const getAllEmployees = async (req, res) => {
@@ -63,7 +66,26 @@ const getAllEmployees = async (req, res) => {
 };
 
 const updateEmployee = async (req, res) => {
-  res.send("Employee updated");
+  try {
+    const { firstName, lastName, skills, email } = req.body;
+    const employee = await Employee.findOneAndUpdate(
+      { email: email },
+      { firstName, lastName, skills }
+    );
+    if (employee) {
+      res
+        .status(StatusCode.accepted)
+        .send({ response: "Employee update successfully" });
+    } else {
+      sendErrorResponse(res, "Employee not found!", {
+        statusCode: StatusCode.notFound,
+      });
+    }
+  } catch (error) {
+    sendErrorResponse(res, error.message, {
+      statusCode: StatusCode.badRequest,
+    });
+  }
 };
 
 const deleteEmployee = async (req, res) => {
