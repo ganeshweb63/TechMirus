@@ -61,11 +61,32 @@ const getAllEmployees = async (req, res) => {
     });
   }
 };
-const updateEmployee = (req, res) => {
+
+const updateEmployee = async (req, res) => {
   res.send("Employee updated");
 };
-const deleteEmployee = (req, res) => {
-  res.send("Employee deleted");
+
+const deleteEmployee = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (email) {
+      const employee = await Employee.findOneAndDelete({ email: email });
+      printLog(employee);
+      if (employee) {
+        res.status(204).send({ response: "Employee is Deleted" });
+      } else {
+        sendErrorResponse(res, "Employee not found!", {
+          statusCode: StatusCode.notFound,
+        });
+      }
+    } else {
+      throw new Error("Required email parameter not sent!");
+    }
+  } catch (error) {
+    sendErrorResponse(res, error.message, {
+      statusCode: StatusCode.badRequest,
+    });
+  }
 };
 
 module.exports = {
