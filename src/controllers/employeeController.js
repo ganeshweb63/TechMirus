@@ -3,7 +3,7 @@ const { printLog, LogType, LogColor } = require("../utils/logger");
 const StatusCode = require("../utils/statusCodes");
 const { sendErrorResponse } = require("../utils/utilities");
 
-const getEmployee = async (req, res) => {
+const getEmployeeByEmail = async (req, res) => {
   try {
     const { email } = req.query;
     if (email) {
@@ -31,6 +31,34 @@ const getEmployee = async (req, res) => {
       }
     } else {
       throw new Error("Required email parameter not sent!");
+    }
+  } catch (error) {
+    sendErrorResponse(res, error.message, {
+      statusCode: StatusCode.badRequest,
+    });
+  }
+};
+
+const getEmployeeById = async (req, res) => {
+  try {
+    const employee = req.employee;
+    if (employee) {
+      let filteredEmployee = {};
+      const allowedKeys = [
+        "firstName",
+        "LastName",
+        "email",
+        "employeeId",
+        "skills",
+      ];
+      allowedKeys.forEach((key) => {
+        if (employee[key] !== undefined && employee[key] !== null) {
+          filteredEmployee[key] = employee[key];
+        }
+      });
+      await res.send(filteredEmployee);
+    } else {
+      res.status(StatusCode.notFound).send("Employee not found!");
     }
   } catch (error) {
     sendErrorResponse(res, error.message, {
@@ -89,12 +117,10 @@ const updateEmployee = async (req, res) => {
           filteredEmployee[key] = employee[key];
         }
       });
-      res
-        .status(StatusCode.accepted)
-        .send({
-          message: "Employee update successfully",
-          data: filteredEmployee,
-        });
+      res.status(StatusCode.accepted).send({
+        message: "Employee update successfully",
+        data: filteredEmployee,
+      });
     } else {
       sendErrorResponse(res, "Employee not found!", {
         statusCode: StatusCode.notFound,
@@ -131,7 +157,8 @@ const deleteEmployee = async (req, res) => {
 };
 
 module.exports = {
-  getEmployee,
+  getEmployeeById,
+  getEmployeeByEmail,
   getAllEmployees,
   updateEmployee,
   deleteEmployee,
