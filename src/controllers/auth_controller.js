@@ -51,7 +51,7 @@ const login = async (req, res) => {
           res.cookie("token", token, {
             expires: new Date(Date.now() + 1 * 3600000),
           });
-          res.send("Login successfully");
+          res.send("Login completed successfully ");
         } else {
           throw new Error("Invalid Credentials!");
         }
@@ -61,12 +61,16 @@ const login = async (req, res) => {
     } else {
       throw new Error("Required filed are not sent!");
     }
-
-    // compate password
   } catch (error) {
     res.status(StatusCode.badRequest).send({ error: error.message });
   }
 };
-const logout = async (req, res) => {};
+
+const logout = async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+  res.send("Logout completed successfully");
+};
 
 module.exports = { signUp, login, logout };
