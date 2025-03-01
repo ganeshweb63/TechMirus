@@ -8,23 +8,29 @@ const signUp = async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
     const employeeId = "Emp00000";
     if (firstName && email && password) {
-      const salt = await bcript.genSalt(10);
-      const hash = await bcript.hash(password, salt);
-      const employee = new Employee({
-        firstName,
-        lastName,
-        email,
-        password: hash,
-        employeeId: employeeId,
-      });
-      const createdUser = await employee.save();
-      const token = jwt.sign({ _id: createdUser._id }, "3G_Celllabs", {
-        expiresIn: "1d",
-      });
-      res.cookie("token", token, {
-        expires: new Date(Date.now() + 1 * 3600000),
-      });
-      res.send({ message: "Employee  created successfully", data: employee });
+      const existedUser = await Employee.findOne({ email: email });
+      console.log("existedUser", existedUser);
+      if (!existedUser) {
+        const salt = await bcript.genSalt(10);
+        const hash = await bcript.hash(password, salt);
+        const employee = new Employee({
+          firstName,
+          lastName,
+          email,
+          password: hash,
+          employeeId: employeeId,
+        });
+        const createdUser = await employee.save();
+        const token = jwt.sign({ _id: createdUser._id }, "3G_Celllabs", {
+          expiresIn: "1d",
+        });
+        res.cookie("token", token, {
+          expires: new Date(Date.now() + 1 * 3600000),
+        });
+        res.send({ message: "Employee  created successfully", data: employee });
+      } else {
+        throw new Error("User already exist!");
+      }
     } else {
       throw new Error("Required filed are not sent!");
     }

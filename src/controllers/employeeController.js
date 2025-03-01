@@ -1,4 +1,3 @@
-const bcript = require("bcrypt");
 const Employee = require("../models/employee");
 const { printLog, LogType, LogColor } = require("../utils/logger");
 const StatusCode = require("../utils/statusCodes");
@@ -11,7 +10,20 @@ const getEmployee = async (req, res) => {
       const employee = await Employee.findOne({ email: email });
       printLog(employee);
       if (employee) {
-        await res.send(employee);
+        let filteredEmployee = {};
+        const allowedKeys = [
+          "firstName",
+          "LastName",
+          "email",
+          "employeeId",
+          "skills",
+        ];
+        allowedKeys.forEach((key) => {
+          if (employee[key] !== undefined && employee[key] !== null) {
+            filteredEmployee[key] = employee[key];
+          }
+        });
+        await res.send(filteredEmployee);
       } else {
         sendErrorResponse(res, "Employee not found!", {
           statusCode: StatusCode.notFound,
@@ -27,39 +39,27 @@ const getEmployee = async (req, res) => {
   }
 };
 
-/**
- *
- * SignUp user handler
- */
-const createEmployee = async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
-  const employeeId = "Emp00004";
-
-  try {
-    if (firstName && email && password) {
-      const salt = await bcript.genSalt(10);
-      const hash = await bcript.hash(password, salt);
-      const employee = await Employee.create({
-        firstName,
-        lastName,
-        email,
-        password: hash,
-        employeeId: employeeId,
-      });
-      res.send({ message: "Employee  created successfully", data: employee });
-    } else {
-      throw new Error("Required filed are not sent!");
-    }
-  } catch (error) {
-    sendErrorResponse(res, error.message, {
-      statusCode: StatusCode.badRequest,
-    });
-  }
-};
 const getAllEmployees = async (req, res) => {
   try {
     const employees = await Employee.find({});
-    res.send(employees);
+    let filteredEmployees = [];
+    const allowedKeys = [
+      "firstName",
+      "LastName",
+      "email",
+      "employeeId",
+      "skills",
+    ];
+    for (const employee of employees) {
+      let currentEmployee = {};
+      allowedKeys.forEach((key) => {
+        if (employee[key] !== undefined && employee[key] !== null) {
+          currentEmployee[key] = employee[key];
+        }
+      });
+      filteredEmployees.push(currentEmployee);
+    }
+    res.send(filteredEmployees);
   } catch (error) {
     sendErrorResponse(res, error.message, {
       statusCode: StatusCode.badRequest,
@@ -76,9 +76,25 @@ const updateEmployee = async (req, res) => {
       { new: true }
     );
     if (employee) {
+      let filteredEmployee = {};
+      const allowedKeys = [
+        "firstName",
+        "LastName",
+        "email",
+        "employeeId",
+        "skills",
+      ];
+      allowedKeys.forEach((key) => {
+        if (employee[key] !== undefined && employee[key] !== null) {
+          filteredEmployee[key] = employee[key];
+        }
+      });
       res
         .status(StatusCode.accepted)
-        .send({ message: "Employee update successfully", data: employee });
+        .send({
+          message: "Employee update successfully",
+          data: filteredEmployee,
+        });
     } else {
       sendErrorResponse(res, "Employee not found!", {
         statusCode: StatusCode.notFound,
@@ -116,7 +132,6 @@ const deleteEmployee = async (req, res) => {
 
 module.exports = {
   getEmployee,
-  createEmployee,
   getAllEmployees,
   updateEmployee,
   deleteEmployee,
