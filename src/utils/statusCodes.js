@@ -1,8 +1,8 @@
 class StatusCode {
   static badRequest = 400;
   static ok = 200;
-  static accepted = 201;
-  static created = 203;
+  static created = 201;
+  static accepted = 202;
   static notFound = 404;
 }
 
