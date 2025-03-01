@@ -1,4 +1,4 @@
-const e = require("express");
+const bcript = require("bcrypt");
 const Employee = require("../models/employee");
 const { printLog, LogType, LogColor } = require("../utils/logger");
 const StatusCode = require("../utils/statusCodes");
@@ -37,11 +37,13 @@ const createEmployee = async (req, res) => {
 
   try {
     if (firstName && email && password) {
+      const salt = await bcript.genSalt(10);
+      const hash = await bcript.hash(password, salt);
       const employee = await Employee.create({
         firstName,
         lastName,
         email,
-        password,
+        password: hash,
         employeeId: employeeId,
       });
       res.send({ message: "Employee  created successfully", data: employee });

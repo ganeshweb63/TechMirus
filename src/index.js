@@ -3,11 +3,13 @@ const { printLog, LogType, LogColor } = require("./utils/logger");
 const { connectToDB } = require("./services/database");
 const app = express();
 const EmployeeRoutes = require("./routes/employeeRoutes");
+const AuthRoutes = require("./routes/authRoutes");
 const { printRequestRoute } = require("./middlewares/employee");
 const port = 8000;
 app.use(express.json());
 app.use(printRequestRoute);
 app.use(EmployeeRoutes);
+app.use(AuthRoutes);
 
 app.use("/", (req, res) => {
   res.send("Hello");
