@@ -18,7 +18,7 @@ const employeeSchema = mongoose.Schema({
     unique: true,
   },
   aadharNumber: {
-    type: String ,
+    type: String,
     maxLength: 12,
   },
   mobile: String,
@@ -33,8 +33,8 @@ const employeeSchema = mongoose.Schema({
   dateOfLeave: Date,
   employeeId: {
     type: String,
-    unique: true,
-    required: true,
+    // unique: true,
+    // required: true,
   },
   skills: {
     type: [String],
@@ -43,4 +43,4 @@ const employeeSchema = mongoose.Schema({
 
 const Employee = mongoose.model("Employee", employeeSchema);
 
-module.exports =  Employee;
+module.exports = Employee;

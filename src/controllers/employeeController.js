@@ -37,14 +37,14 @@ const createEmployee = async (req, res) => {
 
   try {
     if (firstName && email && password) {
-      await Employee.create({
+      const employee = await Employee.create({
         firstName,
         lastName,
         email,
         password,
         employeeId: employeeId,
       });
-      res.send({ response: "Employee  created successfully" });
+      res.send({ message: "Employee  created successfully", data: employee });
     } else {
       throw new Error("Required filed are not sent!");
     }
@@ -70,12 +70,13 @@ const updateEmployee = async (req, res) => {
     const { firstName, lastName, skills, email } = req.body;
     const employee = await Employee.findOneAndUpdate(
       { email: email },
-      { firstName, lastName, skills }
+      { firstName, lastName, skills },
+      { new: true }
     );
     if (employee) {
       res
         .status(StatusCode.accepted)
-        .send({ response: "Employee update successfully" });
+        .send({ message: "Employee update successfully", data: employee });
     } else {
       sendErrorResponse(res, "Employee not found!", {
         statusCode: StatusCode.notFound,

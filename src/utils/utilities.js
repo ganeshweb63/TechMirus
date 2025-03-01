@@ -23,7 +23,6 @@ const sendErrorResponse = async (
   error,
   options = { statusCode: StatusCode.badRequest }
 ) => {
-  console.log(res);
   const errorMessage = buildErrorResponse(error);
   printLog(`[Route: ${res.req.originalUrl}] : ${errorMessage}`, {
     color: LogColor.red,
