@@ -12,7 +12,8 @@ const signUp = async (req, res) => {
     const { firstName, lastName, email, password, role } = req.body;
     const employeeId = "Emp00000";
     if (firstName && email && password && role) {
-      const isCorrectEmployeeRole = employeeRoleExists(role, EmployeeRoleTypes);
+      const isCorrectEmployeeRole = true;
+      // const isCorrectEmployeeRole = employeeRoleExists(role, EmployeeRoleTypes);
       if (!isCorrectEmployeeRole) {
         throw new Error("Incorrect employee Role!");
       }

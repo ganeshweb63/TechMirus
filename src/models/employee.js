@@ -47,7 +47,7 @@ const employeeSchema = mongoose.Schema(
     role: {
       type: Number,
       enum: {
-        values: [1, 2, 3, 4],
+        values: getAllEmployeeRoleValues(EmployeeRoleTypes),
         message: "{VALUE} is not supported",
       },
     },
