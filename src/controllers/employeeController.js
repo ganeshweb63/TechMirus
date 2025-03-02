@@ -1,4 +1,8 @@
 const Employee = require("../models/employee");
+const {
+  employeeRoleExists,
+  EmployeeRoleTypes,
+} = require("../utils/employeeRoleType");
 const { printLog, LogType, LogColor } = require("../utils/logger");
 const StatusCode = require("../utils/statusCodes");
 const { sendErrorResponse } = require("../utils/utilities");
@@ -18,6 +22,7 @@ const getEmployeeByEmail = async (req, res) => {
           "email",
           "employeeId",
           "skills",
+          "role",
         ];
         allowedKeys.forEach((key) => {
           if (employee[key] !== undefined && employee[key] !== null) {
@@ -51,6 +56,7 @@ const getEmployeeById = async (req, res) => {
         "email",
         "employeeId",
         "skills",
+        "role",
       ];
       allowedKeys.forEach((key) => {
         if (employee[key] !== undefined && employee[key] !== null) {
@@ -78,6 +84,7 @@ const getAllEmployees = async (req, res) => {
       "email",
       "employeeId",
       "skills",
+      "role",
     ];
     for (const employee of employees) {
       let currentEmployee = {};
@@ -98,34 +105,45 @@ const getAllEmployees = async (req, res) => {
 
 const updateEmployee = async (req, res) => {
   try {
-    const { firstName, lastName, skills, email } = req.body;
-    const employee = await Employee.findOneAndUpdate(
-      { email: email },
-      { firstName, lastName, skills },
-      { new: true }
-    );
-    if (employee) {
-      let filteredEmployee = {};
-      const allowedKeys = [
-        "firstName",
-        "LastName",
-        "email",
-        "employeeId",
-        "skills",
-      ];
-      allowedKeys.forEach((key) => {
-        if (employee[key] !== undefined && employee[key] !== null) {
-          filteredEmployee[key] = employee[key];
+    const { firstName, lastName, skills, role } = req.body;
+    if (firstName && lastName && skills && role) {
+      const isCorrectEmployeeRole = employeeRoleExists(role, EmployeeRoleTypes);
+    
+      if (isCorrectEmployeeRole) {
+        const employee = await Employee.findOneAndUpdate(
+          { _id: req.employee._id },
+          { firstName, lastName, skills, role },
+          { new: true }
+        );
+        if (employee) {
+          let filteredEmployee = {};
+          const allowedKeys = [
+            "firstName",
+            "LastName",
+            "email",
+            "employeeId",
+            "skills",
+            "role",
+          ];
+          allowedKeys.forEach((key) => {
+            if (employee[key] !== undefined && employee[key] !== null) {
+              filteredEmployee[key] = employee[key];
+            }
+          });
+          res.status(StatusCode.accepted).send({
+            message: "Employee update successfully",
+            data: filteredEmployee,
+          });
+        } else {
+          sendErrorResponse(res, "Employee not found!", {
+            statusCode: StatusCode.notFound,
+          });
         }
-      });
-      res.status(StatusCode.accepted).send({
-        message: "Employee update successfully",
-        data: filteredEmployee,
-      });
+      } else {
+        throw new Error("Incorrect employee Role!");
+      }
     } else {
-      sendErrorResponse(res, "Employee not found!", {
-        statusCode: StatusCode.notFound,
-      });
+      throw new Error("Required parameters not sent!");
     }
   } catch (error) {
     sendErrorResponse(res, error.message, {
@@ -188,7 +206,7 @@ const changePassword = async (req, res) => {
         throw new Error("New password looks like a old password!");
       }
     } else {
-      throw new Error("Required email parameter not sent!");
+      throw new Error("Required parameters not sent!");
     }
   } catch (error) {
     sendErrorResponse(res, error.message, {

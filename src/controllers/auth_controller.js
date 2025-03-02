@@ -2,14 +2,21 @@ const Employee = require("../models/employee");
 const jwt = require("jsonwebtoken");
 const bcript = require("bcrypt");
 const StatusCode = require("../utils/statusCodes");
+const {
+  employeeRoleExists,
+  EmployeeRoleTypes,
+} = require("../utils/employeeRoleType");
 
 const signUp = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, role } = req.body;
     const employeeId = "Emp00000";
-    if (firstName && email && password) {
+    if (firstName && email && password && role) {
+      const isCorrectEmployeeRole = employeeRoleExists(role, EmployeeRoleTypes);
+      if (!isCorrectEmployeeRole) {
+        throw new Error("Incorrect employee Role!");
+      }
       const existedUser = await Employee.findOne({ email: email });
-      console.log("existedUser", existedUser);
       if (!existedUser) {
         const salt = await bcript.genSalt(10);
         const hash = await bcript.hash(password, salt);
@@ -19,6 +26,7 @@ const signUp = async (req, res) => {
           email,
           password: hash,
           employeeId: employeeId,
+          role: role,
         });
         const createdUser = await employee.save();
         const token = jwt.sign({ _id: createdUser._id }, "3G_Celllabs", {

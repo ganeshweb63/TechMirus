@@ -1,4 +1,8 @@
 const mongoose = require("mongoose");
+const {
+  EmployeeRoleTypes,
+  getAllEmployeeRoleValues,
+} = require("../utils/employeeRoleType");
 
 const employeeSchema = mongoose.Schema(
   {
@@ -39,6 +43,13 @@ const employeeSchema = mongoose.Schema(
     },
     skills: {
       type: [String],
+    },
+    role: {
+      type: Number,
+      enum: {
+        values: [1, 2, 3, 4],
+        message: "{VALUE} is not supported",
+      },
     },
   },
   { timestamps: true }
