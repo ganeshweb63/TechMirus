@@ -5,6 +5,7 @@ const {
   updateEmployee,
   getEmployeeById,
   getEmployeeByEmail,
+  changePassword,
 } = require("../controllers/employeeController");
 const { employeeAuth } = require("../middlewares/employee");
 
@@ -15,5 +16,6 @@ router.get("/employee/profile", employeeAuth, getEmployeeById);
 router.get("/employees", getAllEmployees);
 router.put("/employee", updateEmployee);
 router.delete("/employee", deleteEmployee);
+router.put("/changePassword", employeeAuth, changePassword);
 
 module.exports = router;

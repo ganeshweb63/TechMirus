@@ -35,8 +35,3 @@ const employeeAuth = async (req, res, next) => {
 };
 
 module.exports = { printRequestRoute, employeeAuth };
-
-// TODO:
-// authMidlleware // cookies
-// forget password
-// timestamps on models

@@ -2,6 +2,7 @@ const Employee = require("../models/employee");
 const { printLog, LogType, LogColor } = require("../utils/logger");
 const StatusCode = require("../utils/statusCodes");
 const { sendErrorResponse } = require("../utils/utilities");
+const bcript = require("bcrypt");
 
 const getEmployeeByEmail = async (req, res) => {
   try {
@@ -156,10 +157,51 @@ const deleteEmployee = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    if (oldPassword && newPassword) {
+      if (oldPassword !== newPassword) {
+        const isCorrectPassword = await bcript.compare(
+          oldPassword,
+          req.employee.password
+        );
+        if (isCorrectPassword) {
+          const salt = await bcript.genSalt(10);
+          const hashPassword = await bcript.hash(newPassword, salt);
+
+          const employee = await Employee.findOneAndUpdate(
+            { _id: req.employee._id },
+            { password: hashPassword },
+            { returnDocument: "after" }
+          );
+
+          res.status(StatusCode.accepted).send({
+            message: "Password updated successfully",
+            data: employee,
+          });
+        } else {
+          throw new Error("Incorrect password!");
+        }
+      } else {
+        throw new Error("New password looks like a old password!");
+      }
+    } else {
+      throw new Error("Required email parameter not sent!");
+    }
+  } catch (error) {
+    sendErrorResponse(res, error.message, {
+      statusCode: StatusCode.badRequest,
+    });
+  }
+};
+
 module.exports = {
   getEmployeeById,
   getEmployeeByEmail,
   getAllEmployees,
   updateEmployee,
   deleteEmployee,
+  changePassword,
 };
