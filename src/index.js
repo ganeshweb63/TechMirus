@@ -4,6 +4,7 @@ const { connectToDB } = require("./services/database");
 const app = express();
 const EmployeeRoutes = require("./routes/employeeRoutes");
 const AuthRoutes = require("./routes/authRoutes");
+const AttendanceRoutes = require("./routes/attendanceRoutes");
 const { printRequestRoute } = require("./middlewares/employee");
 const cookieParser = require("cookie-parser");
 const port = 8000;
@@ -12,6 +13,7 @@ app.use(cookieParser());
 app.use(printRequestRoute);
 app.use(EmployeeRoutes);
 app.use(AuthRoutes);
+app.use(AttendanceRoutes);
 
 app.use("/", (req, res) => {
   res.send("Hello");
