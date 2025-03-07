@@ -32,7 +32,7 @@ const addAttendance = async (req, res) => {
     const attendance = new Attendance({
       employee: employee._id,
       date: Date.now(),
-      logInTime: logInTime,
+      logInTime: logInTime.toLowerCase(),
       status: status,
       workMode: workMode,
       leaveDetails: leaveDetails,
@@ -74,28 +74,78 @@ const getAttendanceByDate = async (req, res) => {
   }
 };
 
-function isValidTime(logInTime) {
-  const times = logInTime.split(":");
-  if (times.length !== 2) {
+const updateAttendance = async (req, res) => {
+  try {
+    const employee = req.employee;
+    const { logOutTime, date, status, workMode } = req.body;
+    const { hours, minutes, meridiem } = isValidTime(logOutTime);
+    let correctDate = isValidDate(date);
+    console.log("DATE ::", correctDate);
+    const allowedStatus = ["Present", "Absent", "Leave", "WFH"];
+    const allowedWorkMode = ["Office", "Remote", "Hybrid"];
+
+    if (status && !allowedStatus.includes(status)) {
+      throw new Error("Invalid Status!");
+    }
+
+    if (workMode && !allowedWorkMode.includes(workMode)) {
+      throw new Error("Invalid work mode!");
+    }
+    const startOfDay = new Date(correctDate.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(correctDate.setHours(23, 59, 59, 999));
+    const record = await Attendance.findOne({
+      employee: employee._id,
+      date: { $gte: startOfDay, $lte: endOfDay },
+    });
+    if (status) {
+      record.status = status;
+    }
+    if (workMode) {
+      record.workMode = workMode;
+    }
+    record.logOutTime = logOutTime.toLowerCase();
+    await record.save();
+    res.send({ message: `${employee.firstName} attendance is updated` });
+  } catch (error) {
+    res.status(StatusCode.badRequest).send({ error: error.message });
+  }
+};
+
+/**
+ *
+ * @param {*} time
+ * @returns {object} { hours, minutes, meridiem }
+ */
+function isValidTime(time) {
+  const times = time.split(":");
+  if (times.length !== 3) {
     throw new Error("Invalid time format!");
   }
   const hours = Number(times[0]);
   const minutes = Number(times[1]);
+  const meridiem = times[2].toString().toLowerCase();
+  const isNotValidMeridiem = meridiem === "pm" || meridiem === "am";
   if (
     isNaN(hours) ||
     isNaN(minutes) ||
     hours < 0 ||
     hours > 23 ||
     minutes < 0 ||
-    minutes > 59
+    minutes > 59 ||
+    !isNotValidMeridiem
   ) {
     throw new Error("Invalid time format!");
   }
 
-  console.log("Hours:", hours, "Minutes:", minutes);
-  return { hours, minutes };
+  console.log("Hours:", hours, "Minutes:", minutes, "meridiem", meridiem);
+  return { hours, minutes, meridiem };
 }
 
+/**
+ *
+ * @param {string} date  07-03-2025
+ * @returns {Date}
+ */
 const isValidDate = (date) => {
   // attendance?date=06-03-2025
   const splitDate = date.split("-");
@@ -116,7 +166,7 @@ const isValidDate = (date) => {
   if (!isValidDay || !isValidMonth || !isValidYear) {
     throw new Error("Incorrect date!");
   }
-  return new Date(year, month - 1, day);
+  return new Date(year, month - 1, day, 0, 0, 0, 0);
 };
 
 // function createDate(day, month, year) {
@@ -124,4 +174,4 @@ const isValidDate = (date) => {
 //   return new Date(year, month - 1, day);
 // }
 
-module.exports = { addAttendance, getAttendanceByDate };
+module.exports = { addAttendance, getAttendanceByDate, updateAttendance };
