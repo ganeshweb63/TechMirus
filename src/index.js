@@ -7,7 +7,15 @@ const AuthRoutes = require("./routes/authRoutes");
 const AttendanceRoutes = require("./routes/attendanceRoutes");
 const { printRequestRoute } = require("./middlewares/employee");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const port = 8000;
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(printRequestRoute);

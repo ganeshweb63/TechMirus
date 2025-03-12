@@ -66,7 +66,7 @@ const login = async (req, res) => {
           res.cookie("token", token, {
             expires: new Date(Date.now() + 1 * 3600000),
           });
-          res.send("Login completed successfully ");
+          res.send(employee);
         } else {
           throw new Error("Invalid Credentials!");
         }
