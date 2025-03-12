@@ -7,8 +7,8 @@ const attendanceSchema = new mongoose.Schema({
     ref: "Employee",
   },
   date: { type: Date, required: true, default: Date.now() },
-  logInTime: { type: String }, //HH:MM
-  logOutTime: { type: String },
+  logInTime: { type: String }, //HH:MM:AM
+  logOutTime: { type: String }, // //HH:MM:PM
   status: {
     type: String,
     enum: {
